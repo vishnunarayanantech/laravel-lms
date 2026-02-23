@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Lesson;
 use Illuminate\Http\Request;
+use App\Models\Course;
+use App\Models\LessonProgress;
+
 
 class LessonController extends Controller
 {
@@ -34,9 +37,23 @@ class LessonController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Lesson $lesson)
+    public function show(Course $course, Lesson $lesson)
     {
-        //
+
+    $user = auth()->user();
+
+    $progress = LessonProgress::where('user_id',$user->id)
+                ->where('lesson_id',$lesson->id)
+                ->first();
+
+    return view('lessons.show',[
+
+    'course'=>$course,
+    'lesson'=>$lesson,
+    'progress'=>$progress
+
+    ]);
+
     }
 
     /**
@@ -61,5 +78,25 @@ class LessonController extends Controller
     public function destroy(Lesson $lesson)
     {
         //
+    }
+    public function complete(Course $course, Lesson $lesson)
+    {
+
+    LessonProgress::updateOrCreate(
+
+        [
+            'user_id'=>auth()->id(),
+            'lesson_id'=>$lesson->id
+        ],
+
+        [
+            'completed'=>true,
+            'completed_at'=>now()
+        ]
+
+    );
+
+    return back();
+
     }
 }
