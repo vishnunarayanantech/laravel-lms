@@ -11,10 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lessons', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+         Schema::create('lessons', function (Blueprint $table) {
+
+        $table->id();
+
+        $table->foreignId('course_id')
+              ->constrained()
+              ->cascadeOnDelete();
+
+        $table->string('title');
+
+        $table->string('slug')->unique();
+
+        $table->text('content')->nullable();
+
+        $table->integer('position')->default(1);
+
+        $table->integer('duration')->nullable();
+
+        $table->boolean('is_free')->default(false);
+
+        $table->timestamps();
+
+    });
     }
 
     /**

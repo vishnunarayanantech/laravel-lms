@@ -45,5 +45,9 @@ class Course extends Model
         'enrollments'
         );
     }
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
   
 }
