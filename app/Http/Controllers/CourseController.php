@@ -9,12 +9,20 @@ use Illuminate\Support\Str;
 class CourseController extends Controller
 {
 
-    public function index()
-    {
-        $courses = Course::latest()->get();
+    // public function index()
+    // {
+    //     $courses = Course::latest()->get();
 
-        return view('courses.index', compact('courses'));
-    }
+    //     return view('courses.index', compact('courses'));
+    // }
+
+
+public function index()
+{
+    $courses = Course::with('teacher')->get();
+
+    return view('courses.index',compact('courses'));
+}
 
     public function create()
     {
@@ -22,31 +30,19 @@ class CourseController extends Controller
     }
 
     public function store(Request $request)
-    {
+{
+    $request->validate([
+        'title' => 'required|max:255',
+        'slug' => 'required|unique:courses',
+        'description' => 'required',
+        'teacher_id' => 'required|exists:users,id',
+        'status' => 'required'
+    ]);
 
-        $request->validate([
-            'title' => 'required|min:3',
-            'description' => 'nullable'
-        ]);
+    Course::create($request->all());
 
-        Course::create([
-
-            'title'=>$request->title,
-
-            'slug'=>Str::slug($request->title),
-
-            'description'=>$request->description,
-
-            'teacher_id'=>1,
-
-            'status'=>'published'
-
-        ]);
-
-        return redirect('/courses')
-                ->with('success','Course Created');
-
-    }
+    return redirect('/courses');
+}
 
     public function edit(Course $course)
     {
@@ -54,34 +50,25 @@ class CourseController extends Controller
     }
 
     public function update(Request $request, Course $course)
-    {
+{
+    $request->validate([
+        'title' => 'required|max:255',
+        'slug' => 'required|unique:courses,slug,' . $course->id,
+        'description' => 'required',
+        'teacher_id' => 'required|exists:users,id',
+        'status' => 'required'
+    ]);
 
-        $request->validate([
-            'title'=>'required|min:3'
-        ]);
+    $course->update($request->all());
 
-        $course->update([
-
-            'title'=>$request->title,
-
-            'slug'=>Str::slug($request->title),
-
-            'description'=>$request->description
-
-        ]);
-
-        return redirect('/courses')
-                ->with('success','Updated');
-
-    }
+    return redirect('/courses');
+}
 
     public function destroy(Course $course)
     {
-
         $course->delete();
 
-        return back()->with('success','Deleted');
-
+        return redirect('/courses');
     }
 
 }

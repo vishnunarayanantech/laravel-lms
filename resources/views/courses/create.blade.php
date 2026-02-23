@@ -1,49 +1,47 @@
-<!DOCTYPE html>
-<html>
+<h1>Add Course</h1>
 
-<head>
+@if($errors->any())
 
-<title>Create Course</title>
+<div style="color:red">
 
-@vite(['resources/css/app.css'])
+<ul>
 
-</head>
+@foreach($errors->all() as $error)
 
-<body class="bg-gray-100">
+<li>{{ $error }}</li>
 
-<div class="max-w-xl mx-auto mt-10 bg-white p-6 shadow">
+@endforeach
 
-<h2 class="text-2xl mb-6">
+</ul>
 
-Create Course
+</div>
 
-</h2>
+@endif
 
 <form method="POST" action="/courses">
 
 @csrf
 
-<input type="text"
-name="title"
-placeholder="Course Title"
-class="border p-2 w-full mb-4">
+Title:
+<input type="text" name="title"><br><br>
 
-<textarea
-name="description"
-placeholder="Description"
-class="border p-2 w-full mb-4">
+Slug:
+<input type="text" name="slug"><br><br>
 
-</textarea>
+Description:
+<textarea name="description"></textarea><br><br>
 
-<button class="bg-blue-600 text-black px-4 py-2">
+Teacher ID:
+<input type="text" name="teacher_id" value="1"><br><br>
 
-Save
+Status:
+<select name="status">
+<option value="published">Published</option>
+<option value="draft">Draft</option>
+</select>
 
-</button>
+<br><br>
+
+<button type="submit">Save</button>
 
 </form>
-
-</div>
-
-</body>
-</html>
