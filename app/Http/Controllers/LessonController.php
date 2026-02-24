@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Auth;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use App\Models\Course;
@@ -79,24 +79,44 @@ class LessonController extends Controller
     {
         //
     }
-    public function complete(Course $course, Lesson $lesson)
+    // public function complete(Course $course, Lesson $lesson)
+    // {
+
+    // LessonProgress::updateOrCreate(
+
+    //     [
+    //         'user_id'=>auth()->id(),
+    //         'lesson_id'=>$lesson->id
+    //     ],
+
+    //     [
+    //         'completed'=>true,
+    //         'completed_at'=>now()
+    //     ]
+
+    // );
+
+    // return back();
+
+    // }
+    public function complete($courseSlug, $lessonSlug)
     {
+        $lesson = Lesson::where('slug',$lessonSlug)->firstOrFail();
 
-    LessonProgress::updateOrCreate(
+        LessonProgress::updateOrCreate(
 
-        [
-            'user_id'=>auth()->id(),
-            'lesson_id'=>$lesson->id
-        ],
+            [
+                'user_id' => Auth::id(),
+                'lesson_id' => $lesson->id,
+            ],
 
-        [
-            'completed'=>true,
-            'completed_at'=>now()
-        ]
+            [
+                'completed' => true,
+                'completed_at' => now()
+            ]
 
-    );
+        );
 
-    return back();
-
+        return back()->with('success','Lesson Completed');
     }
 }

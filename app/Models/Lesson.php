@@ -15,16 +15,15 @@ class Lesson extends Model
     use HasFactory;
 
     protected $fillable = [
-
-    'course_id',
-    'title',
-    'slug',
-    'content',
-    'video_url',
-    'duration',
-    'order',
-    'is_free'
-
+        'course_id',
+        'title',
+        'slug',
+        'content',
+        'video_url',
+        'duration',
+        'position',
+        'order',
+        'is_free'
     ];
 
     public function course()

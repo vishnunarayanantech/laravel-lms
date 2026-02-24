@@ -49,5 +49,21 @@ class Course extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
+    public function progressForUser($userId)
+    {
+
+    $totalLessons = $this->lessons()->count();
+
+    $completedLessons = LessonProgress::where('user_id',$userId)
+    ->whereIn('lesson_id',$this->lessons->pluck('id'))
+    ->where('completed', true)
+    ->count();
+
+    if($totalLessons == 0)
+    return 0;
+
+    return round(($completedLessons/$totalLessons)*100);
+
+    }
   
 }
