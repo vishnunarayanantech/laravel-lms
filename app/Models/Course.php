@@ -11,10 +11,17 @@ use App\Models\LessonProgress;
 
 
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Course extends Model
 {
     //
-  use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected $fillable = [
 

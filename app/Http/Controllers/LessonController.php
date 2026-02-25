@@ -99,24 +99,19 @@ class LessonController extends Controller
     // return back();
 
     // }
-    public function complete($courseSlug, $lessonSlug)
+    public function complete(Course $course, Lesson $lesson)
     {
-        $lesson = Lesson::where('slug',$lessonSlug)->firstOrFail();
-
         LessonProgress::updateOrCreate(
-
             [
                 'user_id' => Auth::id(),
                 'lesson_id' => $lesson->id,
             ],
-
             [
                 'completed' => true,
                 'completed_at' => now()
             ]
-
         );
 
-        return back()->with('success','Lesson Completed');
+        return back()->with('success', 'Lesson Completed');
     }
 }
