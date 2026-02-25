@@ -19,9 +19,25 @@ class CourseController extends Controller
 
 public function index()
 {
-    $courses = Course::with('teacher')->get();
+    $courses = Course::with('teacher')
+        ->where('status', 'published')
+        ->get();
 
-    return view('courses.index',compact('courses'));
+    return view('courses.index', compact('courses'));
+}
+
+public function show(Course $course)
+{
+    $course->load(['teacher', 'lessons']);
+    $isEnrolled = false;
+
+    if (auth()->check()) {
+        $isEnrolled = $course->enrollments()
+            ->where('user_id', auth()->id())
+            ->exists();
+    }
+
+    return view('courses.show', compact('course', 'isEnrolled'));
 }
 
     public function create()

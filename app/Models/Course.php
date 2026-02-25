@@ -11,10 +11,17 @@ use App\Models\LessonProgress;
 
 
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Course extends Model
 {
     //
-  use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected $fillable = [
 
@@ -48,6 +55,22 @@ class Course extends Model
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
+    }
+    public function progressForUser($userId)
+    {
+
+    $totalLessons = $this->lessons()->count();
+
+    $completedLessons = LessonProgress::where('user_id',$userId)
+    ->whereIn('lesson_id',$this->lessons->pluck('id'))
+    ->where('completed', true)
+    ->count();
+
+    if($totalLessons == 0)
+    return 0;
+
+    return round(($completedLessons/$totalLessons)*100);
+
     }
   
 }
