@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
    public function up()
-{
-    Schema::table('courses', function ($table) {
-        $table->softDeletes();
-    });
-}
+    {
+        Schema::table('courses', function ($table) {
+            $table->softDeletes();
+        });
+    }
 
-public function down()
-{
-    Schema::table('courses', function ($table) {
-        $table->dropSoftDeletes();
-    });
-}
+    public function down()
+    {
+        Schema::table('courses', function ($table) {
+            $table->dropSoftDeletes();
+        });
+    }
 };

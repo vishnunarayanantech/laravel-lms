@@ -10,7 +10,7 @@ class AdminLessonController extends Controller
 {
     public function index()
     {
-        $lessons = Lesson::with('course')->latest()->get();
+        $lessons = Lesson::with('course')->latest()->paginate(10);
         return view('admin.lessons.index', compact('lessons'));
     }
 

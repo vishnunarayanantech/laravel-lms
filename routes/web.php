@@ -38,15 +38,26 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:teacher')
         ->name('teacher.dashboard');
 
-    // Admin Dashboard and Admin Panel
-    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('users', \App\Http\Controllers\AdminUserController::class);
-        Route::resource('courses', \App\Http\Controllers\AdminCourseController::class);
-        Route::resource('lessons', \App\Http\Controllers\AdminLessonController::class);
-        Route::resource('enrollments', \App\Http\Controllers\AdminEnrollmentController::class);
-        Route::get('/reports', [\App\Http\Controllers\AdminReportController::class, 'index'])->name('reports.index');
-    });
+});
+
+// Admin Panel Routes
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+    Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    Route::resource('users', \App\Http\Controllers\AdminUserController::class);
+
+    Route::resource('courses', \App\Http\Controllers\AdminCourseController::class);
+
+    Route::resource('lessons', \App\Http\Controllers\AdminLessonController::class);
+
+    Route::resource('enrollments', \App\Http\Controllers\AdminEnrollmentController::class);
+    
+    Route::get('/reports', [\App\Http\Controllers\AdminReportController::class, 'index'])->name('reports.index');
 });
 
 require __DIR__.'/auth.php';
