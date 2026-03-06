@@ -16,12 +16,14 @@ class AdminDashboardController extends Controller
         $totalLessons = \App\Models\Lesson::count();
         $totalEnrollments = Enrollment::count();
 
-        $recentUsers = User::latest()->take(5)->get();
-        $recentCourses = Course::latest()->take(5)->get();
+        $recentUsers = User::latest()->limit(5)->get();
+        $recentCourses = Course::latest()->limit(5)->get();
+        $recentLessons = \App\Models\Lesson::latest()->with('course')->limit(5)->get();
+        $recentEnrollments = Enrollment::latest()->with(['user', 'course'])->limit(5)->get();
 
         return view('admin.dashboard', compact(
             'totalUsers', 'totalCourses', 'totalLessons', 'totalEnrollments',
-            'recentUsers', 'recentCourses'
+            'recentUsers', 'recentCourses', 'recentLessons', 'recentEnrollments'
         ));
     }
 }
