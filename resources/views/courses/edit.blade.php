@@ -14,7 +14,7 @@
     </div>
 
     <div class="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-        <form method="POST" action="{{ route('courses.update', $course) }}" class="p-8 lg:p-10 space-y-8">
+        <form method="POST" action="{{ route('teacher.courses.update', $course) }}" class="p-8 lg:p-10 space-y-8">
             @csrf
             @method('PUT')
 
@@ -90,7 +90,7 @@
             </div>
         </form>
         
-        <form id="delete-course-form" action="{{ route('courses.destroy', $course) }}" method="POST" class="hidden">
+        <form id="delete-course-form" action="{{ route('teacher.courses.destroy', $course) }}" method="POST" class="hidden">
             @csrf
             @method('DELETE')
         </form>

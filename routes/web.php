@@ -8,6 +8,8 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\TeacherDashboardController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\TeacherCourseController;
+
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -33,10 +35,22 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:student')
         ->name('dashboard');
 
-    // Teacher Dashboard
-    Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'index'])
-        ->middleware('role:teacher')
-        ->name('teacher.dashboard');
+    //Teacher Dashboard
+    // Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'index'])
+    //     ->middleware('role:teacher')
+    //     ->name('teacher.dashboard');
+
+});
+
+Route::middleware(['auth','role:teacher'])
+    ->prefix('teacher')
+    ->name('teacher.')
+    ->group(function () {
+
+        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        Route::resource('courses', TeacherCourseController::class);
 
 });
 
