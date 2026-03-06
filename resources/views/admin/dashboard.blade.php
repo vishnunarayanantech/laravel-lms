@@ -118,4 +118,70 @@
         </div>
     </div>
 </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <!-- Recent Lessons -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-900">Recent Lessons</h2>
+            <a href="{{ route('admin.lessons.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">View All Lessons &rarr;</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-bold border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-3">Lesson</th>
+                        <th class="px-6 py-3">Course</th>
+                        <th class="px-6 py-3">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($recentLessons as $lesson)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900 truncate max-w-[150px]">{{ $lesson->title }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 truncate max-w-[150px]">{{ $lesson->course->title }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ $lesson->created_at->format('M d') }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">No lessons found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Enrollments -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-900">Recent Enrollments</h2>
+            <a href="{{ route('admin.enrollments.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">View All Enrollments &rarr;</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-bold border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-3">Student</th>
+                        <th class="px-6 py-3">Course</th>
+                        <th class="px-6 py-3">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($recentEnrollments as $enrollment)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900 truncate max-w-[150px]">{{ $enrollment->user->name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 truncate max-w-[150px]">{{ $enrollment->course->title }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ $enrollment->created_at->format('M d') }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">No enrollments found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection
