@@ -39,21 +39,28 @@ class LessonController extends Controller
      */
     public function show(Course $course, Lesson $lesson)
     {
+        $user = auth()->user();
+        
+        // Step 6: Restrict lesson access
+        if ($user->role === 'student') {
+            $enrolled = \App\Models\Enrollment::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->exists();
 
-    $user = auth()->user();
+            if (!$enrolled) {
+                abort(403, 'You are not enrolled in this course.');
+            }
+        }
 
-    $progress = LessonProgress::where('user_id',$user->id)
-                ->where('lesson_id',$lesson->id)
-                ->first();
+        $progress = LessonProgress::where('user_id',$user->id)
+                    ->where('lesson_id',$lesson->id)
+                    ->first();
 
-    return view('lessons.show',[
-
-    'course'=>$course,
-    'lesson'=>$lesson,
-    'progress'=>$progress
-
-    ]);
-
+        return view('lessons.show',[
+            'course'=>$course,
+            'lesson'=>$lesson,
+            'progress'=>$progress
+        ]);
     }
 
     /**

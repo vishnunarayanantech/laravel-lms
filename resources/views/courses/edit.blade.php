@@ -95,5 +95,70 @@
             @method('DELETE')
         </form>
     </div>
+
+    <!-- Student Enrollment Section -->
+    <div class="mt-12 bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="p-8 lg:p-10">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Student Enrollment</h2>
+            
+            <form method="POST" action="{{ route('teacher.courses.enrollStudents', $course) }}" class="space-y-6">
+                @csrf
+                <div>
+                    <label for="students" class="block text-sm font-bold text-gray-700 mb-2">Select Students to Enroll</label>
+                    <p class="text-xs text-gray-500 mb-4">Hold Ctrl (Cmd) to select multiple students.</p>
+                    <select name="students[]" id="students" multiple required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition h-48">
+                        @foreach($students as $student)
+                            <option value="{{ $student->id }}">
+                                {{ $student->name }} ({{ $student->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="px-10 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition shadow-lg hover:shadow-xl">
+                        Enroll Selected Students
+                    </button>
+                </div>
+            </form>
+
+            <hr class="my-10 border-gray-100">
+
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Currently Enrolled Students</h3>
+            <div class="overflow-hidden bg-gray-50 rounded-2xl border border-gray-100">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse($enrolledStudents as $enrollment)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $enrollment->user->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $enrollment->user->email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 uppercase">
+                                        {{ $enrollment->status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $enrollment->enrolled_at ? date('M d, Y', strtotime($enrollment->enrolled_at)) : $enrollment->created_at->format('M d, Y') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-10 text-center text-gray-500 italic">No students enrolled yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

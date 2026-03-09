@@ -51,6 +51,7 @@ Route::middleware(['auth','role:teacher'])
             ->name('dashboard');
 
         Route::resource('courses', TeacherCourseController::class);
+        Route::post('courses/{course}/enroll-students', [TeacherCourseController::class, 'enrollStudents'])->name('courses.enrollStudents');
 
 });
 
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'admin'])
     Route::resource('users', \App\Http\Controllers\AdminUserController::class);
 
     Route::resource('courses', \App\Http\Controllers\AdminCourseController::class);
+    Route::post('courses/{course}/enroll-students', [\App\Http\Controllers\AdminCourseController::class, 'enrollStudents'])->name('courses.enrollStudents');
 
     Route::resource('lessons', \App\Http\Controllers\AdminLessonController::class);
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\User;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -41,7 +42,31 @@ class AdminCourseController extends Controller
     public function edit(Course $course)
     {
         $teachers = User::where('role', 'teacher')->get();
-        return view('admin.courses.edit', compact('course', 'teachers'));
+        $students = User::where('role', 'student')->orderBy('name')->get();
+        $enrolledStudents = $course->enrollments()->with('user')->get();
+        
+        return view('admin.courses.edit', compact('course', 'teachers', 'students', 'enrolledStudents'));
+    }
+
+    public function enrollStudents(Request $request, Course $course)
+    {
+        $request->validate([
+            'students' => 'required|array',
+            'students.*' => 'exists:users,id'
+        ]);
+
+        foreach ($request->students as $studentId) {
+            Enrollment::firstOrCreate([
+                'user_id' => $studentId,
+                'course_id' => $course->id
+            ], [
+                'status' => 'active',
+                'enrolled_at' => now()
+            ]);
+        }
+
+        return redirect()->route('admin.courses.edit', $course)
+            ->with('success', 'Students enrolled successfully.');
     }
 
     public function update(Request $request, Course $course)

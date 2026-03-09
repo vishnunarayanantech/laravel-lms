@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\User;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -47,8 +49,40 @@ class TeacherCourseController extends Controller
         if ($course->teacher_id !== Auth::id()) {
             abort(403);
         }
+
+        $students = User::where('role', 'student')->orderBy('name')->get();
+        $enrolledStudents = $course->enrollments()->with('user')->get();
         
-        return view('courses.edit', compact('course'));
+        return view('courses.edit', compact('course', 'students', 'enrolledStudents'));
+    }
+
+    public function enrollStudents(Request $request, Course $course)
+    {
+        if ($course->teacher_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'students' => 'required|array',
+            'students.*' => 'exists:users,id'
+        ]);
+
+        foreach ($request->students as $studentId) {
+            // Validate it's actually a student
+            $user = User::where('id', $studentId)->where('role', 'student')->first();
+            if (!$user) continue;
+
+            Enrollment::firstOrCreate([
+                'user_id' => $studentId,
+                'course_id' => $course->id
+            ], [
+                'status' => 'active',
+                'enrolled_at' => now()
+            ]);
+        }
+
+        return redirect()->route('teacher.courses.edit', $course)
+            ->with('success', 'Students enrolled successfully.');
     }
 
     public function update(Request $request, Course $course)
