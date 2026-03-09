@@ -19,9 +19,17 @@ class CourseController extends Controller
 
 public function index()
 {
-    $courses = Course::with('teacher')
-        ->where('status', 'published')
-        ->get();
+    // If a teacher is logged in, only show their own published courses
+    if (auth()->check() && auth()->user()->role === 'teacher') {
+        $courses = Course::with('teacher')
+            ->where('teacher_id', auth()->id())
+            ->where('status', 'published')
+            ->get();
+    } else {
+        $courses = Course::with('teacher')
+            ->where('status', 'published')
+            ->get();
+    }
 
     return view('courses.index', compact('courses'));
 }
@@ -30,6 +38,11 @@ public function show(Course $course)
 {
     $course->load(['teacher', 'lessons']);
     $isEnrolled = false;
+
+    // Restrict teachers to only view their own courses
+    if (auth()->check() && auth()->user()->role === 'teacher' && $course->teacher_id !== auth()->id()) {
+        abort(403);
+    }
 
     if (auth()->check()) {
         $isEnrolled = $course->enrollments()
