@@ -1,0 +1,199 @@
+# Laravel LMS Technical Documentation
+
+This document provides a comprehensive technical overview of the Laravel LMS application. It covers database design, models, controllers, view templates, routing, and system workflows to assist developers in understanding and extending the codebase.
+
+---
+
+## 1. DATABASE MIGRATIONS
+
+The database schema is designed to support a multi-role educational platform with a focus on course content, enrollment management, and progress tracking.
+
+### Migration Files
+
+1.  **`0001_01_01_000000_create_users_table.php`**
+    *   **Purpose**: Creates the base `users` table for authentication.
+    *   **Columns**: `id`, `name`, `email` (unique), `email_verified_at`, `password`, `remember_token`, `timestamps`.
+    *   **Indices**: Primary key on `id`, unique on `email`.
+
+2.  **`2026_02_23_082313_create_courses_table.php`**
+    *   **Purpose**: Stores course metadata.
+    *   **Columns**:
+        *   `title`: The name of the course.
+        *   `slug`: URL-friendly identifier (Unique).
+        *   `description`: HTML/Text content for course overview.
+        *   `thumbnail`: Path to course image.
+        *   `teacher_id`: Foreign key referencing `id` on `users`.
+        *   `price`: Decimal (8,2) for course cost.
+        *   `level`: String (beginner, intermediate, advanced).
+        *   `status`: String (draft, published).
+    *   **Foreign Keys**: `teacher_id` constrained to `users` table with cascade on delete.
+
+3.  **`2026_02_23_082313_create_enrollments_table.php`**
+    *   **Purpose**: Pivot table connecting students to courses they can access.
+    *   **Columns**:
+        *   `user_id`: ID of the student.
+        *   `course_id`: ID of the enrolled course.
+        *   `status`: Status of enrollment (active, completed, etc.).
+        *   `enrolled_at`: Timestamp of enrollment.
+    *   **Constraints**: Unique composite index on `[user_id, course_id]` to prevent duplicate enrollments. FKs to `users` and `courses`.
+
+4.  **`2026_02_23_082313_create_lessons_table.php`**
+    *   **Purpose**: Stores individual modules or lessons within a course.
+    *   **Columns**:
+        *   `course_id`: Parent course identifier.
+        *   `title`: Lesson title.
+        *   `slug`: Unique identifier for routing.
+        *   `content`: Long text for lesson details.
+        *   `position`: Sorting order.
+        *   `duration`: Time in minutes.
+        *   `is_free`: Boolean for preview access.
+
+5.  **`2026_02_23_082314_create_lesson_progress_table.php`**
+    *   **Purpose**: Tracks student completion status for each lesson.
+    *   **Columns**:
+        *   `user_id`: Reference to student.
+        *   `lesson_id`: Reference to lesson.
+        *   `completed`: Boolean flag.
+        *   `completed_at`: Timestamp.
+    *   **Constraints**: Unique index on `[user_id, lesson_id]`.
+
+6.  **`2026_02_24_051744_add_role_to_users_table.php`**
+    *   **Purpose**: Adds the `role` column to differentiate between `admin`, `teacher`, and `student`.
+
+7.  **`2026_02_25_061927_add_soft_deletes_to_users_table.php`** & **`2026_02_25_061935_add_soft_deletes_to_courses_table.php`**
+    *   **Purpose**: Adds `deleted_at` columns to enable soft-deletion support for users and courses.
+
+8.  **`2026_03_06_064504_add_video_url_to_lessons_table.php`**
+    *   **Purpose**: Adds a `video_url` column to `lessons` for YouTube/media integration.
+
+---
+
+## 2. MODELS
+
+Models are located in `app/Models` and encapsulate the business logic and data relationships.
+
+### User
+*   **Purpose**: Represents all system users (Admins, Teachers, Students).
+*   **Relationships**:
+    *   `courses()`: `hasMany` Course (if user is a teacher).
+    *   `enrollments()`: `hasMany` Enrollment.
+    *   `enrolledCourses()`: `belongsToMany` Course (via `enrollments`).
+    *   `lessonProgress()`: `hasMany` LessonProgress.
+
+### Course
+*   **Purpose**: Represents a collection of lessons and enrollment records.
+*   **Relationships**:
+    *   `teacher()`: `belongsTo` User (the owner/instructor).
+    *   `lessons()`: `hasMany` Lesson.
+    *   `students()`: `belongsToMany` User (all enrolled students).
+    *   `enrollments()`: `hasMany` Enrollment records.
+*   **Logic**: Includes `progressForUser($userId)` to calculate a student's completion percentage.
+
+### Lesson
+*   **Purpose**: An individual learning unit with text content and video.
+*   **Relationships**:
+    *   `course()`: `belongsTo` Course.
+    *   `progress()`: `hasMany` LessonProgress.
+
+### Enrollment
+*   **Purpose**: Defines the many-to-many relationship between students and courses with metadata like enrollment date.
+*   **Relationships**:
+    *   `user()`: `belongsTo` User.
+    *   `course()`: `belongsTo` Course.
+
+### LessonProgress
+*   **Purpose**: Stores a historical record of when a student completes a specific lesson.
+*   **Relationships**:
+    *   `user()`: `belongsTo` User.
+    *   `lesson()`: `belongsTo` Lesson.
+
+---
+
+## 3. CONTROLLERS
+
+Controllers are nested in `app/Http/Controllers` and handle request processing.
+
+### Admin Controllers
+*   **AdminDashboardController**: Aggregates site-wide statistics (total users, courses, revenue) and lists recent activities.
+*   **AdminCourseController**: Full CRUD for courses. Includes `enrollStudents` method to allow admins to assign any student to any course.
+*   **AdminUserController**: Manages the user database, including role assignment and profile updates.
+*   **AdminLessonController**: Manages lessons globally.
+*   **AdminReportController**: Provides high-level analytical reports on course engagement.
+
+### Teacher Controllers
+*   **TeacherDashboardController**: Displays courses owned by the authenticated teacher and student engagement metrics.
+*   **TeacherCourseController**: Allows teachers to create/edit their own courses. Includes a dedicated `enrollStudents` method for roster management.
+
+### Student & General Controllers
+*   **StudentDashboardController**: Lists only the courses a student is enrolled in, showing progress bars for each.
+*   **CourseController**: Public-facing course catalog.
+*   **EnrollmentController**: Handles enrollment logic. Blocks student self-enrollment and provides endpoints for authorized staff.
+*   **LessonController**: The main learning interface. Enforces enrollment checks and processes lesson completion requests.
+
+---
+
+## 4. BLADE VIEW TEMPLATES
+
+Views are organized in `resources/views` to support the multi-role layout.
+
+### Layouts
+*   **`layouts/app.blade.php`**: The standard layout for students and public visitors.
+*   **`layouts/admin.blade.php`**: A sidebar-driven layout specifically for administrative panels.
+
+### Principal Views
+*   **`courses/index`**: Public list of published courses.
+*   **`courses/show`**: Course landing page. Displays curriculum and enrollment status.
+*   **`lessons/show`**: The workspace where students watch videos and read content. Includes **YouTube Embed Logic** that converts standard URLs into iframe-safe formats.
+*   **`admin/dashboard`** / **`teacher/dashboard`**: Statistics-heavy home screens for staff.
+*   **`courses/edit`**: Reusable form for course updates. Now includes a **Student Enrollment Section** for staff.
+
+---
+
+## 5. ROUTES
+
+Routes are primarily defined in `routes/web.php` and use middleware groups for security.
+
+### Public Routes
+*   `GET /`: Home page.
+*   `GET /courses`: Course index.
+*   `GET /courses/{course}`: Course details.
+
+### Student Routes (Auth + Role: student)
+*   `GET /dashboard`: Student dashboard.
+*   `GET /courses/{course}/lessons/{lesson}`: View lesson.
+*   `POST /courses/{course}/lessons/{lesson}/complete`: Mark as finished.
+
+### Teacher Routes (Auth + Role: teacher)
+*   `GET /teacher/dashboard`: Instructor dashboard.
+*   `RESOURCE /teacher/courses`: Teacher course management.
+*   `POST /teacher/courses/{course}/enroll-students`: Bulk student enrollment.
+
+### Admin Routes (Auth + role: admin)
+*   `GET /admin/dashboard`: Global stats.
+*   `RESOURCE /admin/users`: User management.
+*   `RESOURCE /admin/courses`: Global course management.
+*   `POST /admin/courses/{course}/enroll-students`: Admin bulk enrollment.
+
+---
+
+## 6. APPLICATION WORKFLOW
+
+### Staff Enrollment Workflow
+1.  **Teacher/Admin** navigates to the Course Edit page.
+2.  Selects one or more **Students** from the enrollment dropdown.
+3.  Submits the form, which calls `enrollStudents` in the corresponding controller.
+4.  The system creates `Enrollment` records, granting the student access.
+
+### Student Learning Workflow
+1.  **Student** logs in and sees their assigned courses on the dashboard.
+2.  Opens a **Course** and selects a **Lesson**.
+3.  **LessonController** validates the student is enrolled.
+4.  Student watches the **YouTube Video** (automatically formatted by Blade).
+5.  Clicks **"Mark as Finished"**; progress is saved to `lesson_progress`.
+6.  The progress bar on the dashboard updates automatically.
+
+---
+
+## 7. OVERALL SYSTEM DESCRIPTION
+
+This application is a controlled Learning Management System built on Laravel. It moves away from open-registration models, giving full authority to **Admins** and **Teachers** to manage the student roster. The architecture prioritizes **Data Integrity** (via soft deletes and foreign keys) and **User Experience** (via responsive Tailwind designs and automated video embedding). By strictly separating roles through Laravel's middleware system, the platform ensures that administrative tools are powerful and isolated, while the student experience remains simple, focused, and progress-driven.
