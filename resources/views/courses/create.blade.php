@@ -14,7 +14,7 @@
     </div>
 
     <div class="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-        <form method="POST" action="{{ route('courses.store') }}" class="p-8 lg:p-10 space-y-8">
+        <form method="POST" action="{{ route('teacher.courses.store') }}" class="p-8 lg:p-10 space-y-8">
             @csrf
 
             <!-- Hidden Fields -->

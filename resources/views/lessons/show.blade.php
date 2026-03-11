@@ -61,8 +61,14 @@
             <div class="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
                 <!-- Video/Media Header -->
                 @if($lesson->video_url)
+                    @php
+                        $url = $lesson->video_url;
+                        preg_match('/(youtu\.be\/|v=|embed\/)([a-zA-Z0-9_-]+)/', $url, $matches);
+                        $videoId = $matches[2] ?? null;
+                        $embedUrl = $videoId ? "https://www.youtube.com/embed/".$videoId : $url;
+                    @endphp
                     <div class="aspect-video bg-black relative">
-                        <iframe class="absolute inset-0 w-full h-full" src="{{ $lesson->video_url }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        <iframe class="absolute inset-0 w-full h-full" src="{{ $embedUrl }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 @else
                     <div class="h-2 bg-blue-600"></div>

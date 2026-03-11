@@ -6,20 +6,24 @@ use App\Models\Course;
 use App\Models\User;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-class AdminCourseController extends Controller
+class TeacherCourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::with('teacher')->withCount('enrollments')->latest()->paginate(10);
-        return view('admin.courses.index', compact('courses'));
+        $courses = Course::where('teacher_id', Auth::id())
+            ->withCount('enrollments')
+            ->latest()
+            ->paginate(10);
+            
+        return view('teacher.dashboard', compact('courses'));
     }
 
     public function create()
     {
-        $teachers = User::where('role', 'teacher')->get();
-        return view('admin.courses.create', compact('teachers'));
+        return view('courses.create');
     }
 
     public function store(Request $request)
@@ -28,34 +32,46 @@ class AdminCourseController extends Controller
             'title' => 'required|max:255',
             'slug' => 'required|unique:courses',
             'description' => 'required',
-            'teacher_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,published',
             'price' => 'numeric|min:0',
             'level' => 'string|nullable',
         ]);
 
-        Course::create($request->all());
+        $course = new Course($request->all());
+        $course->teacher_id = Auth::id();
+        $course->save();
 
-        return redirect()->route('admin.courses.index')->with('success', 'Course created successfully.');
+        return redirect()->route('teacher.dashboard')->with('success', 'Course created successfully.');
     }
 
     public function edit(Course $course)
     {
-        $teachers = User::where('role', 'teacher')->get();
+        if ($course->teacher_id !== Auth::id()) {
+            abort(403);
+        }
+
         $students = User::where('role', 'student')->orderBy('name')->get();
         $enrolledStudents = $course->enrollments()->with('user')->get();
         
-        return view('admin.courses.edit', compact('course', 'teachers', 'students', 'enrolledStudents'));
+        return view('courses.edit', compact('course', 'students', 'enrolledStudents'));
     }
 
     public function enrollStudents(Request $request, Course $course)
     {
+        if ($course->teacher_id !== Auth::id()) {
+            abort(403);
+        }
+
         $request->validate([
             'students' => 'required|array',
             'students.*' => 'exists:users,id'
         ]);
 
         foreach ($request->students as $studentId) {
+            // Validate it's actually a student
+            $user = User::where('id', $studentId)->where('role', 'student')->first();
+            if (!$user) continue;
+
             Enrollment::firstOrCreate([
                 'user_id' => $studentId,
                 'course_id' => $course->id
@@ -65,17 +81,20 @@ class AdminCourseController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.courses.edit', $course)
+        return redirect()->route('teacher.courses.edit', $course)
             ->with('success', 'Students enrolled successfully.');
     }
 
     public function update(Request $request, Course $course)
     {
+        if ($course->teacher_id !== Auth::id()) {
+            abort(403);
+        }
+
         $request->validate([
             'title' => 'required|max:255',
             'slug' => 'required|unique:courses,slug,' . $course->id,
             'description' => 'required',
-            'teacher_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,published',
             'price' => 'numeric|min:0',
             'level' => 'string|nullable',
@@ -83,12 +102,17 @@ class AdminCourseController extends Controller
 
         $course->update($request->all());
 
-        return redirect()->route('admin.courses.index')->with('success', 'Course updated successfully.');
+        return redirect()->route('teacher.dashboard')->with('success', 'Course updated successfully.');
     }
 
     public function destroy(Course $course)
     {
+        if ($course->teacher_id !== Auth::id()) {
+            abort(403);
+        }
+
         $course->delete();
-        return redirect()->route('admin.courses.index')->with('success', 'Course deleted successfully.');
+        
+        return redirect()->route('teacher.dashboard')->with('success', 'Course deleted successfully.');
     }
 }

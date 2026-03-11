@@ -116,12 +116,38 @@
                     </a>
                 @endif
             @else
-                <form action="{{ route('courses.enroll', $course) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-md hover:shadow-lg mb-4">
-                        Enroll Now
-                    </button>
-                </form>
+                @auth
+                    @if(in_array(auth()->user()->role, ['admin', 'teacher']))
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-6 mb-6">
+                            <h4 class="text-blue-800 font-bold mb-4">Enroll a Student</h4>
+                            <form action="{{ route('courses.enroll', $course) }}" method="POST" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label for="user_id" class="block text-xs font-bold text-blue-600 uppercase mb-2">Select Student</label>
+                                    <select name="user_id" id="user_id" required class="w-full bg-white border border-blue-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                                        <option value="">Choose a student...</option>
+                                        @foreach($students as $student)
+                                            <option value="{{ $student->id }}">{{ $student->name }} ({{ $student->email }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md hover:shadow-lg">
+                                    Enroll into Course
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-4 mb-6 text-center">
+                            <p class="text-yellow-700 text-sm font-medium">
+                                You must be enrolled by a teacher or administrator to access this course.
+                            </p>
+                        </div>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-md hover:shadow-lg mb-4">
+                        Login to Enroll
+                    </a>
+                @endauth
                 <p class="text-center text-xs text-gray-500">30-Day Money-Back Guarantee</p>
             @endif
 

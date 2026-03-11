@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -19,26 +20,45 @@ class CourseController extends Controller
 
 public function index()
 {
-    $courses = Course::with('teacher')
-        ->where('status', 'published')
-        ->get();
+    // If a teacher is logged in, only show their own published courses
+    if (auth()->check() && auth()->user()->role === 'teacher') {
+        $courses = Course::with('teacher')
+            ->where('teacher_id', auth()->id())
+            ->where('status', 'published')
+            ->get();
+    } else {
+        $courses = Course::with('teacher')
+            ->where('status', 'published')
+            ->get();
+    }
 
     return view('courses.index', compact('courses'));
 }
 
-public function show(Course $course)
-{
-    $course->load(['teacher', 'lessons']);
-    $isEnrolled = false;
+    public function show(Course $course)
+    {
+        $course->load(['teacher', 'lessons']);
+        $isEnrolled = false;
+        $students = [];
 
-    if (auth()->check()) {
-        $isEnrolled = $course->enrollments()
-            ->where('user_id', auth()->id())
-            ->exists();
+        // Restrict teachers to only view their own courses
+        if (auth()->check() && auth()->user()->role === 'teacher' && $course->teacher_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (auth()->check()) {
+            $isEnrolled = $course->enrollments()
+                ->where('user_id', auth()->id())
+                ->exists();
+            
+            // If user is admin or teacher, get student list for enrollment form
+            if (in_array(auth()->user()->role, ['admin', 'teacher'])) {
+                $students = \App\Models\User::where('role', 'student')->get();
+            }
+        }
+
+        return view('courses.show', compact('course', 'isEnrolled', 'students'));
     }
-
-    return view('courses.show', compact('course', 'isEnrolled'));
-}
 
     public function create()
     {

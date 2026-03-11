@@ -50,7 +50,7 @@
                         <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
                     @else
                         <div class="bg-blue-50 w-full h-full flex items-center justify-center">
-                            <span class="text-blue-200 text-6xl font-bold">{{ substr($course->title, 0, 1) }}</span>
+                            <!-- <span class="text-blue-200 text-6xl font-bold">{{ substr($course->title, 0, 1) }}</span> -->
                         </div>
                     @endif
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold text-gray-700 shadow-sm">

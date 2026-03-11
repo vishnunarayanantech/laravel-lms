@@ -18,6 +18,12 @@
             </div>
 
             <div class="md:col-span-2">
+                <label for="slug" class="block text-sm font-bold text-gray-700 mb-2">Slug</label>
+                <input type="text" name="slug" id="slug" value="{{ old('slug') }}" required 
+                       class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3">
+            </div>
+
+            <div class="md:col-span-2">
                 <label for="course_id" class="block text-sm font-bold text-gray-700 mb-2">Course</label>
                 <select name="course_id" id="course_id" required class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3">
                     <option value="">Select a Course</option>
@@ -36,9 +42,9 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-bold text-gray-700 mb-2">Description</label>
-                <textarea name="description" id="description" rows="4" required 
-                       class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3">{{ old('description') }}</textarea>
+                <label for="content" class="block text-sm font-bold text-gray-700 mb-2">Lesson Content</label>
+                <textarea name="content" id="content" rows="4" required 
+                       class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3">{{ old('content') }}</textarea>
             </div>
 
             <div>

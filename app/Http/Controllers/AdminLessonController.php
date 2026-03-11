@@ -24,13 +24,18 @@ class AdminLessonController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
+            'slug' => 'required|unique:lessons,slug',
             'course_id' => 'required|exists:courses,id',
-            'video_url' => 'required',
-            'description' => 'required',
-            'duration' => 'required|numeric'
+            'video_url' => 'required|url',
+            'content' => 'required',
+            'duration' => 'required|numeric',
+            'order' => 'required|numeric'
         ]);
 
-        Lesson::create($request->all());
+        $data = $request->all();
+        $data['is_free'] = $request->has('is_free');
+
+        Lesson::create($data);
 
         return redirect()->route('admin.lessons.index')->with('success', 'Lesson created successfully.');
     }
@@ -45,13 +50,18 @@ class AdminLessonController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
+            'slug' => 'required|unique:lessons,slug,' . $lesson->id,
             'course_id' => 'required|exists:courses,id',
-            'video_url' => 'required',
-            'description' => 'required',
-            'duration' => 'required|numeric'
+            'video_url' => 'required|url',
+            'content' => 'required',
+            'duration' => 'required|numeric',
+            'order' => 'required|numeric'
         ]);
 
-        $lesson->update($request->all());
+        $data = $request->all();
+        $data['is_free'] = $request->has('is_free');
+
+        $lesson->update($data);
 
         return redirect()->route('admin.lessons.index')->with('success', 'Lesson updated successfully.');
     }

@@ -7,7 +7,7 @@
             <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Teacher Dashboard</h1>
             <p class="text-gray-600 mt-2">Manage your courses and track student performance.</p>
         </div>
-        <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-bold text-white uppercase tracking-widest hover:bg-blue-700 transition shadow-sm">
+        <a href="{{ route('teacher.courses.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-bold text-white uppercase tracking-widest hover:bg-blue-700 transition shadow-sm">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -79,8 +79,8 @@
                             </td>
                             <td class="px-8 py-5 text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-4">
-                                    <a href="{{ route('courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900 font-bold">Edit</a>
-                                    <a href="{{ route('courses.show', $course) }}" class="text-gray-400 hover:text-gray-900 font-bold">View</a>
+                                    <a href="{{ route('teacher.courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900 font-bold">Edit</a>
+                                    <a href="{{ route('teacher.courses.show', $course) }}" class="text-gray-400 hover:text-gray-900 font-bold">View</a>
                                 </div>
                             </td>
                         </tr>
@@ -88,7 +88,7 @@
                         <tr>
                             <td colspan="4" class="px-8 py-20 text-center">
                                 <p class="text-gray-500 font-medium">You haven't created any courses yet.</p>
-                                <a href="{{ route('courses.create') }}" class="text-blue-600 font-bold hover:underline mt-2 inline-block">Start by creating your first course</a>
+                                <a href="{{ route('teacher.courses.create') }}" class="text-blue-600 font-bold hover:underline mt-2 inline-block">Start by creating your first course</a>
                             </td>
                         </tr>
                     @endforelse

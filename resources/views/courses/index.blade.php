@@ -10,7 +10,7 @@
         
         @auth
             @if(auth()->user()->role === 'teacher' || auth()->user()->role === 'admin')
-                <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-bold text-white uppercase tracking-widest hover:bg-blue-700 transition">
+                <a href="{{ auth()->user()->role === 'admin' ? route('admin.courses.create') : route('teacher.courses.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-bold text-white uppercase tracking-widest hover:bg-blue-700 transition">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -28,7 +28,7 @@
                         <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
                     @else
                         <div class="bg-blue-50 w-full h-full flex items-center justify-center">
-                            <span class="text-blue-200 text-6xl font-bold">{{ substr($course->title, 0, 1) }}</span>
+                            <!-- <span class="text-blue-200 text-6xl font-bold">{{ substr($course->title, 0, 1) }}</span> -->
                         </div>
                     @endif
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold text-gray-700 shadow-sm">
@@ -46,7 +46,7 @@
                         @auth
                             @if(auth()->user()->role === 'admin' || auth()->id() === $course->teacher_id)
                                 <div class="flex items-center space-x-2 ml-2">
-                                    <a href="{{ route('courses.edit', $course) }}" class="text-gray-400 hover:text-blue-600 transition">
+                                    <a href="{{ auth()->user()->role === 'admin' ? route('admin.courses.edit', $course) : route('teacher.courses.edit', $course) }}" class="text-gray-400 hover:text-blue-600 transition">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
